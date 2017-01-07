@@ -50,7 +50,7 @@ p = True
 API_TOKEN = ""
 while p:
     print("Botfather bergan tokenni yozing")
-    for t in raw_input("token:").slit("\n"):
+    for t in raw_input("token:").split("\n"):
         if not(" " in t) and not(p):
             print(t + "tokenga tekshirilmoqda")
             try:
