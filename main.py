@@ -103,7 +103,7 @@ while raw_input('//>').lower() != "tayyor":
     
 print("Agar hammasi tayyor bo'lsa, bo'tni serverga joylimiza. faqat siz avtorizatsiyadan o'tishiz kere. Hozir link chiqadi va siz ucha linkga kirib kod ni copy qilib kelasiz. Keyin terminalga yozasiz. Ok?")
 raw_input('>')
-os.system('app_engine_installer/google_app_engine/appcfg.py -A '+ project_id + " update app_engine_installer/app_engine_project/app.yaml")
+os.system('google_app_engine/appcfg.py -A '+ project_id + " update app_engine_installer/app_engine_project/app.yaml")
 
 try:
     urllib2.urlopen('https://' + project_id + ".appspot.com/set_webhook").read()
