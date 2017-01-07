@@ -52,12 +52,13 @@ API_TOKEN = ""
 while p:
     print("Botfather bergan tokenni yozing")
     for t in raw_input("token:").split("\n"):
-        if not(" " in t) and not(p):
+        if not(" " in t) and p:
             print(t + "tokenga tekshirilmoqda")
             try:
                 data = urllib2.urlopen("https://api.telegram.org/bot"+t+"/getMe").read()
                 print("Bo't topildi! Userneym: @"+json.loads(data)['username'])
                 API_TOKEN = t
+                p=False
             except:
                 print(t + "tokenga to'g'ri kelmaydi")
     if len(API_TOKEN)>1:
