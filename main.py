@@ -56,7 +56,7 @@ while p:
             print(t + "tokenga tekshirilmoqda")
             try:
                 data = urllib2.urlopen("https://api.telegram.org/bot"+t+"/getMe").read()
-                print("Bo't topildi! Userneym: @"+json.loads(data)['username'])
+                print("Bo't topildi! Userneym: @"+str(json.loads(data)['result']['username']))
                 API_TOKEN = t
                 p=False
             except:
@@ -88,14 +88,14 @@ while project_id == "":
     
 
 print("Fayllar sozlanmoqda...")
-data = open('./app_engine_project/app.yaml','r').read()
+data = open('app_engine_installer/app_engine_project/app.yaml','r').read()
 data = data.replace('project_nomi', project_id)
-open('./app_engine_project/app.yaml','w').write(data)
-data = open('./app_engine_project/main.py','r').read()
+open('app_engine_installer/app_engine_project/app.yaml','w').write(data)
+data = open('app_engine_installer/app_engine_project/main.py','r').read()
 data = data.replace('project_nomi', project_id)
 data = data.replace('replace_me_with_token',API_TOKEN)
 data = data.replace('8768957689476', str(admin_id))
-open('./app_engine_project/main.py','w').write(data)
+open('app_engine_installer/app_engine_project/main.py','w').write(data)
 
 print("Ok, ohiriga kelib qoldik. Bo't deyali tayyor. https://appengine.google.com saytiga kiring, yangi ochgan projectingizni tanlang. saytda tepada chap tomonda menyu bor. Menyuga kiring. Usha menyudan \033[95m APP ENGINE \033[0m ni tanlang.\n\nOchilgan stranitsada Choose language yoki Выбрать язык ni bosing. Pasda python ni belgisi chiqib keladi. Ushani tanlang. Karta chiqib kelganda Europe-West (Yevropa) ni tanlang. Pasda next ni bosing. Serverla tayyor bo'lishini kuting. tayyor bo'lganda esa, Tayyor dip yozing.")
 while raw_input('//>').lower() != "tayyor":
