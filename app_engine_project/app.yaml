@@ -1,0 +1,24 @@
+# bu faylda faqatgina project_nomi almashtirilsin!
+ 
+application: project_nomi
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: no
+
+ 
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: .*
+  script: main.app
+  
+
+  
+libraries:
+- name: webapp2
+  version: "2.5.2"
+- name: ssl
+  version: latest
