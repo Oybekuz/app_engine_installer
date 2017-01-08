@@ -1,58 +1,68 @@
 #!/usr/bin/env python
 #-*-coding:utf8;-*-
 
-project_name = "project_nomi" 
-
-
+project_name = "python-uz" 
 import fileworker as fv
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
-
 import logging
-
 import threading
 import requests
 import json
-
 from google.appengine.api import urlfetch
-
+from google.appengine.ext import ndb
 import telebot
 import time
 from time import sleep
 from telebot import types
 import os
 import random
-
 from datetime import datetime
 from pytz import timezone
-
 import webapp2
 import urllib
 import urllib2
-
-API_TOKEN = "replace_me_with_token"
+API_TOKEN = "227804415:AAFU4kzGz-KnLFnV8c-5GoqyPRC89-txl28"
 def admin(user_id):
-    Admins = [88505037, 8768957689476] #Adminlar id si ro'yhati. Bu yerga o'zingizni id raqamingizni yozing. Tel raqam emas, telegramdagi id raqam
+    Admins = [88505037, 88505037] #Adminlar id si ro'yhati. Bu yerga o'zingizni id raqamingizni yozing. Tel raqam emas, telegramdagi id raqam
     if user_id in Admins:
         return(True)
     else:
         return(False)
-
 bot=telebot.TeleBot(API_TOKEN, threaded=False)
-
 bot_id=API_TOKEN.split(":")[0]
 
 def _print(a):
     logging.info(str(a))
     return
 
-
-
 def md(txt):
     return(txt.replace("_","\_").replace("*","\*").replace("`","\`").replace("[","\["))
 
+class Knowledge(ndb.Model):  
+    answer = ndb.StringProperty()
 
+def get_answer(text):
+    s = Knowledge.get_by_id(text.decode('utf-8'))
+    if s: 
+        if "|" in s.answer:
+            return random.choice(s.answer.split('|'))
+    return None
+
+def get_all_answers(text):
+    s = Knowledge.get_by_id(text)
+    if s: 
+        return(s.answer)
+    return None
+    
+def add_answer(text, answer):
+    text=text.decode('utf-8')
+    answers = get_all_answers(text.deode('utf-8'))
+    s = Knowledge.get_or_insert(answers+"|"+text)
+    s.answer = answer.decode('utf-8') 
+    s.put()
+    
 def broadcast(data):
     subscribe = fv.open('./enabled_list.uzsdb', 'r').read().split('\n')
     subscribe_count = len(subscribe)
@@ -75,17 +85,15 @@ def getEnabled(chatid):
         return False
     
 def setEnabled(chatid, enable=True):
-    def run():
-        enable_list = fv.open('./enabled_list.uzsdb', 'r').read().split('\n')
-        if enable:
-            enable_list.append(str(chatid))
-        else:
-            try:
-                enable_list.remove(str(chatid))
-            except:
-                'ok'
-        fv.open('./enabled_list.uzsdb', 'w').write('\n'.join(enable_list))
-    run()
+    enable_list = fv.open('./enabled_list.uzsdb', 'r').read().split('\n')
+    if enable:
+        enable_list.append(str(chatid))
+    else:
+        try:
+            enable_list.remove(str(chatid))
+        except:
+            'ok'
+    fv.open('./enabled_list.uzsdb', 'w').write('\n'.join(enable_list))
     return
 
 def next_step(chatid, stepstr):
@@ -108,19 +116,13 @@ def new_chat_member(message):
     bot.send_message(chat_id, "Salom, " + first_name)
 
 
-    
- 
-        
 @bot.message_handler(func=lambda message: True)
 def main(message):
     first_name = message.from_user.first_name.decode("utf-8") #hat yozgan odam ismi
     user_id = message.from_user.id #hat yozgan odam id si
     chat_id = message.chat.id #chat id si. Agar gruppa bo'sa chat_id<0, agar lichka bo'sa user_id bilan bir xil
-
     text = str(message.text).decode("utf-8") #yozilfan gat matni
-    
     if len(text)>0: #agar text uzunligi 0 dan kotta bo'sa (hatolarni oldini olish uchun
-        
         try:
             if chat_id>0: #lichka bo'sa
                 step = fv.open('./users/info_' + str(chat_id) + '.uzsdb', 'r').read()
@@ -129,15 +131,9 @@ def main(message):
         except:
             step = 'none'
         
-        def markup_1(): #bunga e'tibor bermi turila, keyin kere bo'ladi. Bosh menyu punktlari
-            markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, selective=True)
-            markup.add("birinchi buyruq", "ikkinchi buyruq")
-            markup.add("uchinchi buyruq")
-            return(markup)
-        
         def start():
             if getEnabled(chat_id): #agar oldin yozgan bo'sa
-                bot.send_message(chat_id, "Salom, qalesiz?", reply_markup=markup_1())
+                bot.send_message(chat_id, "Salom, qalesiz?")
                 next_step(chat_id, 'main')
             else:
                 setEnabled(chat_id)
@@ -159,47 +155,25 @@ def main(message):
                     bot.send_message(chat_id, "Etip qo'ydim )")
                 except Exception as ex:
                     bot.send_message(chat_id, "Hat yetip bormadi. Hato: " + str(ex))
+            
+            if text.startswith('/learn '):
+                try:
+                    data = text.split(' ',1)[1]
+                    if '|' in data:
+                        savol = data.split('|',1)[0]
+                        answer = data.split("|",1)[1]
+                        if len(savol)<20:
+                            add_answer(savol, answer)
+                        else:
+                            bot.send_message(chat_id, "Savol juda uzun")
+                    else:
+                        bot.send_message(chat_id, "*/learn salov|javob* ko'rinishida yozing!", parse_mode="Markdown")
+                except:
+                    bot.send_message(chat_id, "*/learn salov|javob* ko'rinishida yozing!", parse_mode="Markdown")
              
             
         if text.startswith("/start"):
-            try:
-                if text=="/start" or text=="/start@bot_userneymi":
-                    start()
-                    return
-                
-                        
-                else: #bu tomonga tegmanglar. taklif qilgan odamlarni sanash uchun kerak. hozircha ishlamidi
-                    try:
-                        inviter_id = text.split(" ",1)[1]
-                        if str(user_id) == str(inviter_id):
-                            bot.send_message(chat_id, "😾G'irrom qilish yaxshimas!!!")
-                            return
-                        else:
-                            try:
-                                history = fv.open('./history.uzsdb', 'r').read().split('|')
-                            except:
-                                history = [0]
-                            if history.count(str(chat_id)) == 0 and chat_id>0:
-                                history.append(str(chat_id))
-                                fv.open('./history.uzsdb', 'w').write('|'.join(history))
-                                inviter_id = int(inviter_id)
-                                
-                                first_name = message.from_user.first_name.decode("utf-8")
-                                try:
-                                    if message.from_user.username:
-                                        username = message.from_user.username.decode("utf-8")
-                                        bot.send_message(inviter_id, "😊Siz do'stingiz [" + str(first_name) + "](https://telegram.me/"+str(username)+") ni taklif qildingiz.", parse_mode="Markdown",disable_web_page_preview=True)
-                                    else:   #username bo'lmasa
-                                        bot.send_message(inviter_id, "😊Siz do'stingiz *" + str(first_name) + "* ni taklif qildingiz.", parse_mode="Markdown")
-                                except Exception as ex:
-                                    logging.error("Hato: "+ str(ex))
-                                    
-                                
-                            start()
-                    except Exception as ex: 
-                        start()
-            except Exception as ex: 
-                start()
+            start()
                 
         
         elif step == "group_chat":
@@ -219,7 +193,34 @@ def main(message):
             elif text == "/markdown":
                 bot.send_message(chat_id, "*BOLD*, _italic_, `fixedsys`, [giperssilka](https://telegram.me/uzstudio)")
             
-            
+            else:
+                script = False
+                filter_1 = ["_","()","sys","os","import"]
+                for f in filter_1:
+                    if f in text:
+                        script = True
+                txt = text        
+                if not script:
+                    try:
+                        text = text.replace("^","**")
+                        text = text.replace("%","/100")
+                        text = text.replace('x',"*")
+                        text = text.replace(':',"/")
+                        exp = text
+                        for t in ['1', '2', '3' '4', '5', '6', '7', '8', '9', '0', '+', '-', '*', '/', '(', ')']:
+                            exp = exp.replace(t,"")
+                        if len(exp)==0:
+                            data = eval(text)
+                            bot.send_message(chat_id, str(data))
+                        
+                    except:
+                        "ok"
+                text = txt
+                if len(text)<20:
+                    answer = get_answer(text)
+                    if answer:
+                        bot.send_message(chat_id, answer)
+                    
 
         elif step=="none":
             start()
@@ -230,7 +231,6 @@ def main(message):
             ping = time.time() - message.date
             bot.edit_message_text("ping=" + str(ping), chat_id=chat_id, message_id=m.message_id)
             #bot.send_chat_action(chat_id, 'typing')
-        
         
         elif text == "/about": #Agar foydalanuvchilarni hisoblash sistemasini 0 dan tuzsangiz, @UzStudio ni optashasiz mumkin
             chats = fv.open('./enabled_list.uzsdb', 'r').read().split('\n')
@@ -247,12 +247,25 @@ def main(message):
             subscribe_about = '📈Bot foydalanuvchilari:\n👤*' + str(chats) + '* odamlar,\n👥*' + str(group) + '* guruxlar.\n🕵Hammasi bo\'lip: *' + str(chats+group) + '*\n'
             bot.send_message(chat_id, subscribe_about +"\n*" +   str(time.time()) + "*\n\n©`2015`-`2016` @UzStudio ™", parse_mode="Markdown")
 
+        if len(text)<15:
+            answer = get_answer(text)
+            if answer:
+                bot.send_message(chat_id, answer)
+        
         elif step=="main": #Agar asosiy menyuda bo'lsa
             if text=="/command" or text == "command":
                 bot.send_message(chat_id, "answer")
+            
             elif text == "/help" or text == "Yordam⁉️": 
                 bot.send_chat_action(chat_id, 'typing') #typing chiqarish
                 bot.send_message(chat_id, "Salom, bu bot...") #davomini yozarsiz
+            
+            elif text.startswith("/echo"):
+                try:
+                    data = text.split(" ",1)[1]
+                    bot.send_message(chat_id, data)
+                except:
+                    bot.send_message(chat_id, "/echo qanaqadir text")
             
             
                 
