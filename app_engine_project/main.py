@@ -194,28 +194,13 @@ def main(message):
                 bot.send_message(chat_id, "*BOLD*, _italic_, `fixedsys`, [giperssilka](https://telegram.me/uzstudio)")
             
             else:
-                script = False
-                filter_1 = ["_","()","sys","os","import"]
-                for f in filter_1:
-                    if f in text:
-                        script = True
-                txt = text        
-                if not script:
+                if "-" in text or "+" in text or "^" in text or "*" in text or "/" in text or "!" in text or ":" in text:
+                    exp = text
                     try:
-                        text = text.replace("^","**")
-                        text = text.replace("%","/100")
-                        text = text.replace('x',"*")
-                        text = text.replace(':',"/")
-                        exp = text
-                        for t in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '+', '-', '*', '/', '(', ')']:
-                            exp = exp.replace(t,"")
-                        if len(exp)==0:
-                            data = eval("print(" + text + ")")
-                            bot.send_message(chat_id, str(data))
-                        
+                        data = urllib2.urlopen("http://api.mathjs.org/v1/", urllib.urlencode({"expr": exp})).read()
+                        bot.send_message(chat_id, str(data))
                     except Exception as ex:
-                        logging.error(str(ex))
-                text = txt
+                        logging.info(ex)
                 if len(text)<20:
                     answer = get_answer(text)
                     if answer:
@@ -270,28 +255,13 @@ def main(message):
             else:
                 
                 
-                script = False
-                filter_1 = ["_","()","sys","os","import"]
-                for f in filter_1:
-                    if f in text:
-                        script = True
-                txt = text        
-                if not script:
+                if "-" in text or "+" in text or "^" in text or "*" in text or "/" in text or "!" in text or ":" in text:
+                    exp = text
                     try:
-                        text = text.replace("^","**")
-                        text = text.replace("%","/100")
-                        text = text.replace('x',"*")
-                        text = text.replace(':',"/")
-                        exp = text
-                        for t in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '+', '-', '*', '/', '(', ')']:
-                            exp = exp.replace(t,"")
-                        if len(exp)==0:
-                            data = eval("print(" + text + ")")
-                            bot.send_message(chat_id, str(data))
-                        
+                        data = urllib2.urlopen("http://api.mathjs.org/v1/", urllib.urlencode({"expr": exp})).read()
+                        bot.send_message(chat_id, str(data))
                     except Exception as ex:
-                        logging.error(str(ex))
-                text = txt
+                        logging.info(ex)
                 if len(text)<20:
                     answer = get_answer(text)
                     if answer:
