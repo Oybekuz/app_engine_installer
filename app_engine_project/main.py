@@ -47,19 +47,19 @@ def get_answer(text):
     s = Knowledge.get_by_id(text.decode('utf-8'))
     if s: 
         if "|" in s.answer:
-            return random.choice(s.answer.split('|'))
-    return None
+            return(random.choice(s.answer.split('|')))
+    return(None)
 
 def get_all_answers(text):
     s = Knowledge.get_by_id(text)
     if s: 
         return(s.answer)
-    return 'None'
+    return None
     
 def add_answer(text, answer):
     text=text.decode('utf-8')
     answers = get_all_answers(text.decode('utf-8'))
-    if not answers == "None":
+    if len(answers)>0:
         answers = answers.split("|")
     else:
         answers = []
@@ -163,19 +163,26 @@ def main(message):
             
             if text.startswith('/learn '):
                 try:
+                    bot.send_message(chat_id, "Buyruqlarni o'rganish uchun /learn_help")
                     data = text.split(' ',1)[1]
                     if '|' in data:
                         savol = data.split('|',1)[0]
                         answer = data.split("|",1)[1]
                         if len(savol)<20:
                             add_answer(savol, answer)
+                            bot.send_message(chat_id, "O'rganib oldim.")
                         else:
                             bot.send_message(chat_id, "Savol juda uzun")
                     else:
                         bot.send_message(chat_id, "*/learn salov|javob* ko'rinishida yozing!", parse_mode="Markdown")
-                except:
-                    bot.send_message(chat_id, "*/learn salov|javob* ko'rinishida yozing!", parse_mode="Markdown")
-             
+                except Exception as ex:
+                    
+                    bot.send_message(chat_id, "*/learn salov|javob* ko'rinishida yozing!\n" + str(ex), parse_mode="Markdown")
+            
+            elif text == "/learn_help":
+                bot.send_message(chat_id, "Salom, siz bo'tga so'z o'rgatishiz uchun quyidagi shakilda buyruq bering: \n/learn So'z|javob \n misol uchun siz 'Salom' so'ziga 'Salom, ishla qale' deb javob berishni o'rgatmoxchi bo'lsangiz quyidagi buyruqni berasiz. \n/learn Salom|Salom, ishla qale?\nO'rgatilgan so'zla bazadan o'chirilishi hali qo'shilgani yo'q. Shuning uchun so'zlarni yaxshilap o'ylap qo'shing.")
+                bot.send_message(chat_id, "Misol uchun agar menga 'kim man' dip yozsa, man uni otini yozishim kere bo'sa, quyidagicha buyruq berasiz: \n/learn kim man|Sizni telegramdagi ismingiz: __name__ \nta'ni ikkita '_' chizig'i name va yana ikkita __ chiziq. Bu boshqa so'zlaga aralaship ketmasligi uchun. Bundan tashqari, siz __id__ buyrug'iniyam ishlatishingiz mummin. Misol uchun:\n/learn /id|__id__\bBularni sinap ko'ring.")
+                
 
         if text.startswith("/start"):
             start()
@@ -261,7 +268,7 @@ def main(message):
             
             elif text == "/help" or text == "Yordam⁉️": 
                 bot.send_chat_action(chat_id, 'typing') #typing chiqarish
-                bot.send_message(chat_id, "Salom, bu bot...") #davomini yozarsiz
+                bot.send_message(chat_id, "Salom, bu bot gruppalada va lichkada sal boshqacharoq gaplashadi. Bo't qilolidiganishlari:\n1) Misollar yechish. lichkamga har-hil misollar berib ko'ringlar. 2) Saytlarni screenshot qilish. gruppada buyruqga misol: /screen http://gruppala.ga/ lichkada shundo sayt urlsi yoziladi. \nBo't Admin o'rgatgan so'zlaniaym o'rgana oladi.") #davomini yozarsiz
             
             elif text.startswith("/echo"):
                 try:
