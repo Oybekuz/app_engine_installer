@@ -54,12 +54,12 @@ def get_all_answers(text):
     s = Knowledge.get_by_id(text)
     if s: 
         return(s.answer)
-    return None
+    return 'None'
     
 def add_answer(text, answer):
     text=text.decode('utf-8')
     answers = get_all_answers(text.decode('utf-8'))
-    if len(answers)>0:
+    if not answers == "None":
         answers = answers.split("|")
     else:
         answers = []
