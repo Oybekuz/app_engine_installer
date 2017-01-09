@@ -186,8 +186,6 @@ def main(message):
                 r_salom=random.choice(Salom)
                 bot.reply_to(message, r_salom)
             
-            elif text == "1+1":
-                bot.send_message(chat_id, "2")
             elif text=="ok":
                 bot.reply_to(message,"ok") #bu tomoni yana example
             elif text == "/markdown":
@@ -217,7 +215,7 @@ def main(message):
                         try:
                             bot.send_photo(chat_id, data)
                         except:
-                            bot.send_message(chat_id, "[screenshot](" + str(data) + ")", parse_mode="Markdown")
+                            bot.send_message(chat_id, "[screenshot](" + str(data) + ") topilmadi", parse_mode="Markdown")
                     except:
                         _print(" ")
                     
@@ -247,11 +245,6 @@ def main(message):
             subscribe_about = '📈Bot foydalanuvchilari:\n👤*' + str(chats) + '* odamlar,\n👥*' + str(group) + '* guruxlar.\n🕵Hammasi bo\'lip: *' + str(chats+group) + '*\n'
             bot.send_message(chat_id, subscribe_about +"\n*" +   str(time.time()) + "*\n\n©`2015`-`2016` @UzStudio ™", parse_mode="Markdown")
 
-        if len(text)<15:
-            answer = get_answer(text)
-            if answer:
-                bot.send_message(chat_id, answer)
-        
         elif step=="main": #Agar asosiy menyuda bo'lsa
             if text=="/command" or text == "command":
                 bot.send_message(chat_id, "answer")
@@ -289,7 +282,10 @@ def main(message):
                         try:
                             bot.send_photo(chat_id, data)
                         except:
-                            bot.send_message(chat_id, "[screenshot](" + str(data) + ")", parse_mode="Markdown")
+                            bot.send_message(chat_id, "[screenshot](" + str(data) + ") topilmadi", parse_mode="Markdown")
+                    except:
+                        _print(" ")
+                
                     
             
                 
