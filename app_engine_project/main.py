@@ -58,7 +58,7 @@ def get_all_answers(text):
     
 def add_answer(text, answer):
     text=text.decode('utf-8')
-    answers = get_all_answers(text.deode('utf-8'))
+    answers = get_all_answers(text.decode('utf-8'))
     if len(answers)>0:
         answers = answers.split("|")
     else:
