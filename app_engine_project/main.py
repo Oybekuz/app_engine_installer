@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*-coding:utf8;-*-
 
-project_name = "python-uz" 
+project_name = "project_nomi" 
 import fileworker as fv
 import sys
 reload(sys)
@@ -23,9 +23,9 @@ from pytz import timezone
 import webapp2
 import urllib
 import urllib2
-API_TOKEN = "227804415:AAFU4kzGz-KnLFnV8c-5GoqyPRC89-txl28"
+API_TOKEN = "replace_me_with_token"
 def admin(user_id):
-    Admins = [88505037, 88505037] #Adminlar id si ro'yhati. Bu yerga o'zingizni id raqamingizni yozing. Tel raqam emas, telegramdagi id raqam
+    Admins = [88505037, 8768957689476] #Adminlar id si ro'yhati. Bu yerga o'zingizni id raqamingizni yozing. Tel raqam emas, telegramdagi id raqam
     if user_id in Admins:
         return(True)
     else:
@@ -207,14 +207,14 @@ def main(message):
                         text = text.replace('x',"*")
                         text = text.replace(':',"/")
                         exp = text
-                        for t in ['1', '2', '3' '4', '5', '6', '7', '8', '9', '0', '+', '-', '*', '/', '(', ')']:
+                        for t in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '+', '-', '*', '/', '(', ')']:
                             exp = exp.replace(t,"")
                         if len(exp)==0:
-                            data = eval(text)
+                            data = eval("print(" + text + ")")
                             bot.send_message(chat_id, str(data))
                         
-                    except:
-                        "ok"
+                    except Exception as ex:
+                        logging.error(str(ex))
                 text = txt
                 if len(text)<20:
                     answer = get_answer(text)
@@ -266,7 +266,37 @@ def main(message):
                     bot.send_message(chat_id, data)
                 except:
                     bot.send_message(chat_id, "/echo qanaqadir text")
-            
+                    
+            else:
+                
+                
+                script = False
+                filter_1 = ["_","()","sys","os","import"]
+                for f in filter_1:
+                    if f in text:
+                        script = True
+                txt = text        
+                if not script:
+                    try:
+                        text = text.replace("^","**")
+                        text = text.replace("%","/100")
+                        text = text.replace('x',"*")
+                        text = text.replace(':',"/")
+                        exp = text
+                        for t in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '+', '-', '*', '/', '(', ')']:
+                            exp = exp.replace(t,"")
+                        if len(exp)==0:
+                            data = eval("print(" + text + ")")
+                            bot.send_message(chat_id, str(data))
+                        
+                    except Exception as ex:
+                        logging.error(str(ex))
+                text = txt
+                if len(text)<20:
+                    answer = get_answer(text)
+                    if answer:
+                        bot.send_message(chat_id, answer)
+                    
             
                 
             
