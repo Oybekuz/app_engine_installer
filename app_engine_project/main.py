@@ -189,20 +189,8 @@ def main(message):
             elif text=="ok":
                 bot.reply_to(message,"ok") #bu tomoni yana example
             elif text == "/markdown":
-                bot.send_message(chat_id, "*BOLD*, _italic_, `fixedsys`, [giperssilka](https://telegram.me/uzstudio)")
+                bot.send_message(chat_id, "*BOLD*, _italic_, `fixedsys`, [giperssilka](https://telegram.me/uzstudio)", parse_mode="Markdown")
             
-            else:
-                if "-" in text or "+" in text or "^" in text or "*" in text or "/" in text or "!" in text or ":" in text:
-                    exp = text
-                    try:
-                        data = urllib2.urlopen("http://api.mathjs.org/v1/?expr=" + urllib.quote(exp)).read()
-                        bot.send_message(chat_id, str(data))
-                    except Exception as ex:
-                        logging.info(ex)
-                if len(text)<20:
-                    answer = get_answer(text)
-                    if answer:
-                        bot.send_message(chat_id, answer)
             
             elif text.startswith("/screen "):
                 text = text.split(" ",1)[1]
@@ -218,6 +206,23 @@ def main(message):
                             bot.send_message(chat_id, "[screenshot](" + str(data) + ") topilmadi", parse_mode="Markdown")
                     except:
                         _print(" ")
+            
+            
+            else:
+                if "-" in text or "+" in text or "^" in text or "*" in text or "/" in text or "!" in text or ":" in text:
+                    exp = text
+                    try:
+                        data = urllib2.urlopen("http://api.mathjs.org/v1/?expr=" + urllib.quote(exp)).read()
+                        bot.send_message(chat_id, str(data))
+                    except Exception as ex:
+                        logging.info(ex)
+                
+                if len(text)<20:
+                    answer = get_answer(text)
+                    if answer:
+                        bot.send_message(chat_id, answer)
+            
+            
                     
 
         elif step=="none":
