@@ -59,7 +59,12 @@ def get_all_answers(text):
 def add_answer(text, answer):
     text=text.decode('utf-8')
     answers = get_all_answers(text.deode('utf-8'))
-    s = Knowledge.get_or_insert(answers+"|"+text)
+    if len(answers)>0:
+        answers = answers.split("|")
+    else:
+        answers = []
+    answers.append(text)
+    s = Knowledge.get_or_insert("|".join(answers))
     s.answer = answer.decode('utf-8') 
     s.put()
     
