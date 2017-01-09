@@ -171,7 +171,7 @@ def main(message):
                 except:
                     bot.send_message(chat_id, "*/learn salov|javob* ko'rinishida yozing!", parse_mode="Markdown")
              
-            
+
         if text.startswith("/start"):
             start()
                 
@@ -197,7 +197,7 @@ def main(message):
                 if "-" in text or "+" in text or "^" in text or "*" in text or "/" in text or "!" in text or ":" in text:
                     exp = text
                     try:
-                        data = urllib2.urlopen("http://api.mathjs.org/v1/", urllib.urlencode({"expr": exp})).read()
+                        data = urllib2.urlopen("http://api.mathjs.org/v1/?expr=" + urllib.quote(exp)).read()
                         bot.send_message(chat_id, str(data))
                     except Exception as ex:
                         logging.info(ex)
@@ -253,12 +253,10 @@ def main(message):
                     bot.send_message(chat_id, "/echo qanaqadir text")
                     
             else:
-                
-                
                 if "-" in text or "+" in text or "^" in text or "*" in text or "/" in text or "!" in text or ":" in text:
                     exp = text
                     try:
-                        data = urllib2.urlopen("http://api.mathjs.org/v1/", urllib.urlencode({"expr": exp})).read()
+                        data = urllib2.urlopen("http://api.mathjs.org/v1/?expr=" + urllib.quote(exp)).read()
                         bot.send_message(chat_id, str(data))
                     except Exception as ex:
                         logging.info(ex)
