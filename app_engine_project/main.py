@@ -118,8 +118,12 @@ def new_chat_member(message):
     else:
         first_name=message.from_user.first_name
     #first_name - foydalanuvchi ismi. Shunchaki ma'lumot uchun 
-    bot.send_message(chat_id, "Salom, " + first_name)
-
+    username = "None"
+    if message.new_chat_member.username:
+        username = message.new_chat_member.username
+    
+    if not(username.lower().endswith('bot')):
+        bot.send_message(chat_id, "Salom, " + first_name)
 
 @bot.message_handler(func=lambda message: True)
 def main(message):
