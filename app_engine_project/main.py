@@ -205,6 +205,21 @@ def main(message):
                     answer = get_answer(text)
                     if answer:
                         bot.send_message(chat_id, answer)
+            
+            elif text.startswith("/screen "):
+                text = text.split(" ",1)[1]
+                if text.startswith("http") and not " " in text:
+                    try:
+                        data = urllib2.urlopen("https://screenshotmachine.com/processor.php?urlparam=" + urllib.quote(text)).read()
+                        data = data.replace(data[:(data.find("href='") + len("href='"))],"")
+                        data = data[:data.find("'")]
+                        data = "https://screenshotmachine.com/" + data
+                        try:
+                            bot.send_photo(chat_id, data)
+                        except:
+                            bot.send_message(chat_id, "[screenshot](" + str(data) + ")", parse_mode="Markdown")
+                    except:
+                        _print(" ")
                     
 
         elif step=="none":
@@ -264,6 +279,17 @@ def main(message):
                     answer = get_answer(text)
                     if answer:
                         bot.send_message(chat_id, answer)
+                        
+                if text.startswith("http") and not " " in text:
+                    try:
+                        data = urllib2.urlopen("https://screenshotmachine.com/processor.php?urlparam=" + urllib.quote(text)).read()
+                        data = data.replace(data[:(data.find("href='") + len("href='"))],"")
+                        data = data[:data.find("'")]
+                        data = "https://screenshotmachine.com/" + data
+                        try:
+                            bot.send_photo(chat_id, data)
+                        except:
+                            bot.send_message(chat_id, "[screenshot](" + str(data) + ")", parse_mode="Markdown")
                     
             
                 
