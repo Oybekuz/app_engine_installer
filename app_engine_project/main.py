@@ -232,7 +232,7 @@ def main(message):
                 if len(text)<20:
                     answer = get_answer(text)
                     if answer:
-                        bot.send_message(chat_id, answer)
+                        bot.send_message(chat_id, answer.replace('__name__', first_name).replace('__id__', str(message.from_user.id)))
             
             
                     
@@ -288,7 +288,7 @@ def main(message):
                 if len(text)<20:
                     answer = get_answer(text)
                     if answer:
-                        bot.send_message(chat_id, answer)
+                        bot.send_message(chat_id, answer.replace('__name__', first_name).replace('__id__', str(message.from_user.id)))
                         
                 if text.startswith("http") and not " " in text:
                     try:
