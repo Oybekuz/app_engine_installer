@@ -48,13 +48,14 @@ def get_answer(text):
     if s: 
         if "|" in s.answer:
             return(random.choice(s.answer.split('|')))
-    return(None)
+        else:
+            return(s.answer)
 
 def get_all_answers(text):
     s = Knowledge.get_by_id(text)
     if s: 
         return(s.answer)
-    return None
+    return("")
     
 def add_answer(text, answer):
     text=text.decode('utf-8')
