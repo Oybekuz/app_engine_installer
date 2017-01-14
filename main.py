@@ -107,6 +107,6 @@ os.system('google_appengine/appcfg.py -A '+ project_id + " update app_engine_ins
 
 try:
     urllib2.urlopen('https://' + project_id + ".appspot.com/set_webhook").read()
-    print("Agar siz hammasini to'g'ri qilgan bo'lsangiz, bo't ishga tushdi. Muammolar bo'lsa, @python_uzga yozing.")
+    print("Agar siz hammasini to'g'ri qilgan bo'lsangiz, bo't ishga tushdi. Muammolar bo'lsa, @python_uz ga yozing.")
 except:
     print("Server ishlamiyopti. Qandaydir hato bo'lgan")
