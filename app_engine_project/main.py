@@ -47,10 +47,13 @@ def get_answer(text):
     s = Knowledge.get_by_id(text.decode('utf-8'))
     if s: 
         if "|" in s.answer:
-            return(random.choice(s.answer.split('|')))
+            answers = s.answer.split("|")
+            return(random.choice(answers))
         else:
             return(s.answer)
-
+    else:
+        return(None)
+    
 def get_all_answers(text):
     s = Knowledge.get_by_id(text)
     if s: 
@@ -64,7 +67,7 @@ def add_answer(text, answer):
         answers = answers.split("|")
     else:
         answers = []
-    answers=answers.append(text)
+    answers=answers.append(answer)
     s = Knowledge.get_or_insert("|".join(answers))
     s.answer = answer.decode('utf-8') 
     s.put()
