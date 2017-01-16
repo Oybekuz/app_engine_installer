@@ -41,35 +41,27 @@ def md(txt):
     return(txt.replace("_","\_").replace("*","\*").replace("`","\`").replace("[","\["))
 
 class Knowledge(ndb.Model):  
-    answer = ndb.StringProperty()
+    answer = ndb.StringProperty(repeated=True)
 
 def get_answer(text):
     s = Knowledge.get_by_id(text.decode('utf-8'))
-    if s: 
-        if "|" in s.answer:
-            answers = s.answer.split("|")
-            return(random.choice(answers))
-        else:
-            return(s.answer)
-    else:
-        return(None)
-    
+    if s:
+        return(random.choice(s.answer))
+
 def get_all_answers(text):
-    s = Knowledge.get_by_id(text)
+    s = Knowledge.get_by_id(text.decode('utf-8'))
     if s: 
         return(s.answer)
-    return("")
+    return "none"
     
 def add_answer(text, answer):
-    text=text.decode('utf-8')
-    answers = get_all_answers(text.decode('utf-8'))
-    if len(answers)>0:
-        answers = answers.split("|")
-    else:
+    text = text.decode('utf-8')
+    answers = get_all_answers(text)
+    if answers == "none":
         answers = []
-    answers=answers.append(answer)
-    s = Knowledge.get_or_insert("|".join(answers))
-    s.answer = answer.decode('utf-8') 
+    answers.append(answer.decode('utf-8'))
+    s = Knowledge.get_or_insert(text.decode('utf-8'))
+    s.answer = answers
     s.put()
     
 def broadcast(data):
@@ -155,7 +147,7 @@ def main(message):
                     history = fv.open('./history.uzsdb', 'r').read().split('|')
                 except:
                     history = ["0"]
-                next_step(chat_id, 'main')
+                next_step(chat_id, 'not_activated')
                 if history.count(str(chat_id)) == 0:
                     history.append(str(chat_id))
                     fv.open('./history.uzsdb', 'w').write('|'.join(history))
@@ -229,7 +221,7 @@ def main(message):
             
             
             else:
-                if "-" in text or "+" in text or "^" in text or "*" in text or "/" in text or "!" in text or ":" in text:
+                if "-" in text or "+" in text or "^" in text or "*" in text or "/" in text or "!" in text or ":" in text or "sin" in text or "cos" in text:
                     exp = text
                     try:
                         data = urllib2.urlopen("http://api.mathjs.org/v1/?expr=" + urllib.quote(exp)).read()
