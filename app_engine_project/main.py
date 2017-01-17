@@ -147,7 +147,7 @@ def main(message):
                     history = fv.open('./history.uzsdb', 'r').read().split('|')
                 except:
                     history = ["0"]
-                next_step(chat_id, 'not_activated')
+                next_step(chat_id, 'main')
                 if history.count(str(chat_id)) == 0:
                     history.append(str(chat_id))
                     fv.open('./history.uzsdb', 'w').write('|'.join(history))
