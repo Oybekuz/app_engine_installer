@@ -317,27 +317,24 @@ telebot.logger.setLevel(logging.INFO)
 # webserver index
 class IndexHandler(webapp2.RequestHandler):
     def get(self):
-        urlfetch.set_default_fetch_deadline(60)
         self.response.write("""<!DOCTYPE html>
 <html lang="uz">
   <head>
     <meta charset="utf-8">
-    <title>gruppala_bot</title>
+    <title>""" + project_name + """</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content=""" + project_name +""" " serveri">
+    <meta name="description" content=""" + project_name + """ " serveri">
     <meta name="author" content="UzStudio">
   <link rel="shortcut icon" href="/favicon.ico">
-
   </head>
   <body>
-
  <h1><a href="tg:reslove?domain=uzstudio">""" + project_name + """</a> ning serveri</h1>
  </body>
 </html>""")
         return
 
 
-  # bu joyiga teymela!!! Eng optimal qilip yozib bo'lingan!
+# bu joyiga teymela!!! Eng optimal qilip yozib bo'lingan!
 # Process webhook calls
 class WebhookHandler(webapp2.RequestHandler):
     def post(self):
@@ -379,10 +376,6 @@ class WebhookHandler(webapp2.RequestHandler):
             logging.error(str(ex))
         self.response.write('{"ok": true}')
         return
-        
-            
-        
-
 
 class SetWebhookHandler(webapp2.RequestHandler):
     def get(self):
