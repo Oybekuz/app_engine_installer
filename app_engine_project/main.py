@@ -381,6 +381,7 @@ class SetWebhookHandler(webapp2.RequestHandler):
     def get(self):
         urlfetch.set_default_fetch_deadline(60)
         url = self.request.get("url")
+        token = self.request.get("token")
         try:
             fv.open("./enabled_list.uzsdb","r").read()
         except:
@@ -393,8 +394,11 @@ class SetWebhookHandler(webapp2.RequestHandler):
             
         if not url:
             bot.set_webhook("https://" + project_name + ".appspot.com/webhook")
-        else:
+        elif token == API_TOKEN:
             bot.set_webhook(url)
+        else:
+            self.response.write("token noto'g'ri")
+            return
         self.response.write("ok")
         return
         
