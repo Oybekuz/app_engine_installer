@@ -213,7 +213,7 @@ def main(message):
                         data = data[:data.find("'")]
                         data = "https://screenshotmachine.com/" + data
                         try:
-                            bot.send_photo(chat_id, data)
+                            bot.send_photo(chat_id, data, caption = '🌐 ' + text, reply_to_message_id = message.message_id)
                         except:
                             bot.send_message(chat_id, "[screenshot](" + str(data) + ") topilmadi", parse_mode="Markdown")
                     except:
@@ -245,7 +245,6 @@ def main(message):
             m = bot.send_message(chat_id, "pong")
             ping = time.time() - message.date
             bot.edit_message_text("ping=" + str(ping), chat_id=chat_id, message_id=m.message_id)
-            #bot.send_chat_action(chat_id, 'typing')
         
         elif text == "/about": #Agar foydalanuvchilarni hisoblash sistemasini 0 dan tuzsangiz, @UzStudio ni optashasiz mumkin
             chats = fv.open('./enabled_list.uzsdb', 'r').read().split('\n')
@@ -297,7 +296,7 @@ def main(message):
                         data = data[:data.find("'")]
                         data = "https://screenshotmachine.com/" + data
                         try:
-                            bot.send_photo(chat_id, data)
+                            bot.send_photo(chat_id, data, caption = '🌐 ' + text, reply_to_message_id = message.message_id)
                         except:
                             bot.send_message(chat_id, "[screenshot](" + str(data) + ") topilmadi", parse_mode="Markdown")
                     except:
@@ -323,13 +322,13 @@ class IndexHandler(webapp2.RequestHandler):
     <meta charset="utf-8">
     <title>""" + project_name + """</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content=""" + project_name + """ " serveri">
+    <meta name="description" content=""" + project_name + """ " ning serveri">
     <meta name="author" content="UzStudio">
-  <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico">
   </head>
   <body>
- <h1><a href="tg:reslove?domain=uzstudio">""" + project_name + """</a> ning serveri</h1>
- </body>
+    <h1><a href="tg:reslove?domain=uzstudio">""" + project_name + """</a> ning serveri</h1>
+  </body>
 </html>""")
         return
 
@@ -401,7 +400,7 @@ class SetWebhookHandler(webapp2.RequestHandler):
             return
         self.response.write("ok")
         return
-        
+
 app = webapp2.WSGIApplication([
     ('/', IndexHandler),
     ('/set_webhook', SetWebhookHandler),
