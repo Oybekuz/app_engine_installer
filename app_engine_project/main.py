@@ -52,16 +52,21 @@ def get_all_answers(text):
     s = Knowledge.get_by_id(text.decode('utf-8'))
     if s: 
         return(s.answer)
-    return "none"
+    return None
     
 def add_answer(text, answer):
     text = text.decode('utf-8')
     answers = get_all_answers(text)
-    if answers == "none":
+    if answers == None:
         answers = []
     answers.append(answer.decode('utf-8'))
     s = Knowledge.get_or_insert(text.decode('utf-8'))
     s.answer = answers
+    s.put()
+    
+def update_answer(question, answers_list):
+    s = Knowledge.get_or_insert(question.decode('utf-8'))
+    s.answer = answers_list
     s.put()
     
 def broadcast(data):
@@ -100,6 +105,29 @@ def setEnabled(chatid, enable=True):
 def next_step(chatid, stepstr):
     fv.open('./users/info_' + str(chatid) + '.uzsdb', 'w').write(stepstr)
     
+@bot.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+    if call.message:
+        if call.data.startswith("del|"):
+            try:
+                data = call.data.replace("del|", "").split('|')
+                question = data[0]
+                answer = int(data[1])-1
+                answers_list = get_all_answers(question)
+                old_answer = answers_list[answer]
+                answers_list.pop(answer)
+                update_answer(question, answers_list)
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Savol: " + str(question) + "\n⛔️Javob: " + str(old_answer))
+            except Exception as e:
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Hato:\n" + str(e))
+        elif call.data.startswith("del_question|"):
+            try:
+                question = call.data.replace("del_question|", "")
+                update_answer(question, [])
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="⛔️Savol: " + str(question))
+            except Exception as e:
+                bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Hato:\n" + str(e))
+
 
 @bot.message_handler(func=lambda message: True, content_types=['new_chat_member'])
 def new_chat_member(message):
@@ -170,15 +198,41 @@ def main(message):
                         answer = data.split("|",1)[1]
                         if len(savol)<20:
                             add_answer(savol, answer)
-                            bot.send_message(chat_id, "O'rganib oldim.")
+                            bot.send_message(chat_id, "O'rganib oldim.", reply_to_message_id = message.message_id)
                         else:
-                            bot.send_message(chat_id, "Savol juda uzun")
+                            bot.send_message(chat_id, "Savol juda uzun", reply_to_message_id = message.message_id)
                     else:
                         bot.send_message(chat_id, "*/learn salov|javob* ko'rinishida yozing!", parse_mode="Markdown")
                 except Exception as ex:
-                    
                     bot.send_message(chat_id, "*/learn salov|javob* ko'rinishida yozing!\n" + str(ex), parse_mode="Markdown")
-            
+
+            elif text.startswith('/javob '):
+                try:
+                    data = text.split(' ',1)[1]
+                    answers = get_all_answers(data)
+                    if answers:
+                        keyboard = types.InlineKeyboardMarkup()
+                        i = 1
+                        text = ''
+                        callback = types.InlineKeyboardButton(text = "Savolni o'chirish⛔️" , callback_data="del_question|" + data)
+                        keyboard.add(callback)
+                        for answer in answers:
+                            if len(answers) > 10:
+                                if len(answer) > 70:
+                                    text = text + "\n*" + str(i) + "*- `" + str(answer)[:70] + "...`"
+                                else:
+                                    text = text + "\n*" + str(i) + "*- `" + str(answer) + "`"
+                            else:
+                                text = text + "\n*" + str(i) + "*- `" + str(answer) + "`"
+                            callback = types.InlineKeyboardButton(text = str(i) + " - ni o'chirish⛔️" , callback_data="del|" + data + "|" + str(i))
+                            keyboard.add(callback)
+                            i += 1
+                        bot.send_message(chat_id, "*Savol*: `" + data + "`\n*Javoblar:* " + text, parse_mode="Markdown", reply_markup=keyboard)
+                    else:
+                        bot.send_message(chat_id, "Bunaqa so'zni bilmayman")
+                except Exception as ex:
+                    bot.send_message(chat_id, str(ex))
+
             elif text == "/learn_help":
                 bot.send_message(chat_id, "Salom, siz bo'tga so'z o'rgatishiz uchun quyidagi shakilda buyruq bering: \n/learn So'z|javob \n misol uchun siz 'Salom' so'ziga 'Salom, ishla qale' deb javob berishni o'rgatmoxchi bo'lsangiz quyidagi buyruqni berasiz. \n/learn Salom|Salom, ishla qale?\nO'rgatilgan so'zla bazadan o'chirilishi hali qo'shilgani yo'q. Shuning uchun so'zlarni yaxshilap o'ylap qo'shing.")
                 bot.send_message(chat_id, "Misol uchun agar menga 'kim man' dip yozsa, man uni otini yozishim kere bo'sa, quyidagicha buyruq berasiz: \n/learn kim man|Sizni telegramdagi ismingiz: __name__ \nta'ni ikkita '_' chizig'i name va yana ikkita __ chiziq. Bu boshqa so'zlaga aralaship ketmasligi uchun. Bundan tashqari, siz __id__ buyrug'iniyam ishlatishingiz mummin. Misol uchun:\n/learn /id|__id__\bBularni sinap ko'ring.")
@@ -232,9 +286,7 @@ def main(message):
                 if len(text)<20:
                     answer = get_answer(text)
                     if answer:
-                        bot.send_message(chat_id, answer.replace('__name__', first_name).replace('__id__', str(message.from_user.id)))
-            
-            
+                        bot.send_message(chat_id, answer.replace('__name__', first_name).replace('__id__', str(message.from_user.id)), reply_to_message_id = message.message_id)
                     
 
         elif step=="none":
