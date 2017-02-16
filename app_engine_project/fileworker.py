@@ -27,6 +27,19 @@ class open:
         self.way = bucket + "/" + way.replace("./","",1)
         self.mode = mode
     def write(self, data):
+      if self.mode == 'a':
+        try:
+          file=gcs.open(self.way)
+          dataOld=file.read()
+          file.close()
+        except:
+          dataOld = ''
+        write_retry_params = gcs.RetryParams(backoff_factor=1.1)
+        file=gcs.open(self.way, 'w', content_type='text/plain', retry_params=write_retry_params)
+        file.write(dataOld + data.encode('utf-8'))
+        file.close()
+        return("ok")
+      else:
         write_retry_params = gcs.RetryParams(backoff_factor=1.1)
         file=gcs.open(self.way, self.mode, content_type='text/plain', retry_params=write_retry_params)
         file.write(data.encode('utf-8'))
