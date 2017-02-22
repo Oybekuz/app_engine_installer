@@ -67,6 +67,8 @@ class TeleBot:
 
         self.message_handlers = []
         self.edited_message_handlers = []
+        self.channel_post_handlers = []
+        self.edited_channel_post_handlers = []
         self.inline_handlers = []
         self.chosen_inline_handlers = []
         self.callback_query_handlers = []
@@ -75,21 +77,33 @@ class TeleBot:
         if self.threaded:
             self.worker_pool = util.ThreadPool()
 
-    def set_webhook(self, url=None, certificate=None):
-        return apihelper.set_webhook(self.token, url, certificate)
+    def set_webhook(self, url=None, certificate=None, max_connections=None, allowed_updates=None):
+        return apihelper.set_webhook(self.token, url, certificate, max_connections, allowed_updates)
+
+    def delete_webhook(self):
+        """
+        Use this method to remove webhook integration if you decide to switch back to getUpdates.
+        :return: bool
+        """
+        return apihelper.delete_webhook(self.token)
+
+    def get_webhook_info(self):
+        result = apihelper.get_webhook_info(self.token)
+        return types.WebhookInfo.de_json(result)
 
     def remove_webhook(self):
         return self.set_webhook()  # No params resets webhook
 
-    def get_updates(self, offset=None, limit=None, timeout=20):
+    def get_updates(self, offset=None, limit=None, timeout=20, allowed_updates=None):
         """
         Use this method to receive incoming updates using long polling (wiki). An Array of Update objects is returned.
+        :param allowed_updates: Array of string. List the types of updates you want your bot to receive.
         :param offset: Integer. Identifier of the first update to be returned.
         :param limit: Integer. Limits the number of updates to be retrieved.
         :param timeout: Integer. Timeout in seconds for long polling.
         :return: array of Updates
         """
-        json_updates = apihelper.get_updates(self.token, offset, limit, timeout)
+        json_updates = apihelper.get_updates(self.token, offset, limit, timeout, allowed_updates)
         ret = []
         for ju in json_updates:
             ret.append(types.Update.de_json(ju))
@@ -125,6 +139,8 @@ class TeleBot:
     def process_new_updates(self, updates):
         new_messages = []
         edited_new_messages = []
+        new_channel_posts = []
+        new_edited_channel_posts = []
         new_inline_querys = []
         new_chosen_inline_results = []
         new_callback_querys = []
@@ -135,6 +151,10 @@ class TeleBot:
                 new_messages.append(update.message)
             if update.edited_message:
                 edited_new_messages.append(update.edited_message)
+            if update.channel_post:
+                new_channel_posts.append(update.channel_post)
+            if update.edited_channel_post:
+                new_edited_channel_posts.append(update.edited_channel_post)
             if update.inline_query:
                 new_inline_querys.append(update.inline_query)
             if update.chosen_inline_result:
@@ -146,6 +166,10 @@ class TeleBot:
             self.process_new_messages(new_messages)
         if len(edited_new_messages) > 0:
             self.process_new_edited_messages(edited_new_messages)
+        if len(new_channel_posts) > 0:
+            self.process_new_channel_posts(new_channel_posts)
+        if len(new_edited_channel_posts) > 0:
+            self.process_new_edited_channel_posts(new_edited_channel_posts)
         if len(new_inline_querys) > 0:
             self.process_new_inline_query(new_inline_querys)
         if len(new_chosen_inline_results) > 0:
@@ -162,6 +186,12 @@ class TeleBot:
 
     def process_new_edited_messages(self, edited_message):
         self._notify_command_handlers(self.edited_message_handlers, edited_message)
+
+    def process_new_channel_posts(self, channel_post):
+        self._notify_command_handlers(self.channel_post_handlers, channel_post)
+
+    def process_new_edited_channel_posts(self, edited_channel_post):
+        self._notify_command_handlers(self.edited_channel_post_handlers, edited_channel_post)
 
     def process_new_inline_query(self, new_inline_querys):
         self._notify_command_handlers(self.inline_handlers, new_inline_querys)
@@ -393,7 +423,8 @@ class TeleBot:
             apihelper.send_photo(self.token, chat_id, photo, caption, reply_to_message_id, reply_markup,
                                  disable_notification))
 
-    def send_audio(self, chat_id, audio, duration=None, performer=None, title=None, reply_to_message_id=None,
+    def send_audio(self, chat_id, audio, caption=None, duration=None, performer=None, title=None,
+                   reply_to_message_id=None,
                    reply_markup=None, disable_notification=None, timeout=None):
         """
         Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .mp3 format.
@@ -407,10 +438,10 @@ class TeleBot:
         :return: Message
         """
         return types.Message.de_json(
-            apihelper.send_audio(self.token, chat_id, audio, duration, performer, title, reply_to_message_id,
+            apihelper.send_audio(self.token, chat_id, audio, caption, duration, performer, title, reply_to_message_id,
                                  reply_markup, disable_notification, timeout))
 
-    def send_voice(self, chat_id, voice, duration=None, reply_to_message_id=None, reply_markup=None,
+    def send_voice(self, chat_id, voice, caption=None, duration=None, reply_to_message_id=None, reply_markup=None,
                    disable_notification=None, timeout=None):
         """
         Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message.
@@ -422,7 +453,7 @@ class TeleBot:
         :return: Message
         """
         return types.Message.de_json(
-            apihelper.send_voice(self.token, chat_id, voice, duration, reply_to_message_id, reply_markup,
+            apihelper.send_voice(self.token, chat_id, voice, caption, duration, reply_to_message_id, reply_markup,
                                  disable_notification, timeout))
 
     def send_document(self, chat_id, data, reply_to_message_id=None, caption=None, reply_markup=None,
@@ -543,21 +574,38 @@ class TeleBot:
             return result
         return types.Message.de_json(result)
 
-    # def edit_message_reply_markup(self, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
-    #     return types.Message.de_json(
-    #         apihelper.edit_message_reply_markup(self.token, chat_id, message_id, inline_message_id, reply_markup)
-    #     )
-    
     def edit_message_reply_markup(self, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
         result = apihelper.edit_message_reply_markup(self.token, chat_id, message_id, inline_message_id, reply_markup)
         if type(result) == bool:
             return result
         return types.Message.de_json(result)
-    
+
+    def send_game(self, chat_id, game_short_name, disable_notification=None, reply_to_message_id=None,
+                  reply_markup=None):
+        result = apihelper.send_game(self.token, chat_id, game_short_name, disable_notification, reply_to_message_id,
+                                     reply_markup)
+        return types.Message.de_json(result)
+
+    def set_game_score(self, user_id, score, force=None,chat_id=None, message_id=None, inline_message_id=None, edit_message=None):
+        result = apihelper.set_game_score(self.token, user_id, score, force, chat_id, message_id, inline_message_id,
+                                          edit_message)
+        if type(result) == bool:
+            return result
+        return types.Message.de_json(result)
+
+    def get_game_high_scores(self, user_id, chat_id=None, message_id=None, inline_message_id=None):
+        result = apihelper.get_game_high_scores(self.token, user_id, chat_id, message_id, inline_message_id)
+        ret = []
+        for r in result:
+            ret.append(types.GameHighScore.de_json(r))
+        return ret
+
     def edit_message_caption(self, caption, chat_id=None, message_id=None, inline_message_id=None, reply_markup=None):
-        return types.Message.de_json(
-            apihelper.edit_message_caption(self.token, caption, chat_id, message_id, inline_message_id, reply_markup)
-        )
+        result = apihelper.edit_message_caption(self.token, caption, chat_id, message_id, inline_message_id,
+                                                reply_markup)
+        if type(result) == bool:
+            return result
+        return types.Message.de_json(result)
 
     def reply_to(self, message, text, **kwargs):
         """
@@ -583,7 +631,7 @@ class TeleBot:
         return apihelper.answer_inline_query(self.token, inline_query_id, results, cache_time, is_personal, next_offset,
                                              switch_pm_text, switch_pm_parameter)
 
-    def answer_callback_query(self, callback_query_id, text=None, show_alert=None):
+    def answer_callback_query(self, callback_query_id, text=None, show_alert=None, url=None, cache_time=None):
         """
         Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to
         the user as a notification at the top of the chat screen or as an alert.
@@ -592,7 +640,7 @@ class TeleBot:
         :param show_alert:
         :return:
         """
-        return apihelper.answer_callback_query(self.token, callback_query_id, text, show_alert)
+        return apihelper.answer_callback_query(self.token, callback_query_id, text, show_alert, url, cache_time)
 
     def register_for_reply(self, message, callback):
         """
@@ -726,6 +774,38 @@ class TeleBot:
     def add_edited_message_handler(self, handler_dict):
         self.edited_message_handlers.append(handler_dict)
 
+    def channel_post_handler(self, commands=None, regexp=None, func=None, content_types=['text'], **kwargs):
+        def decorator(handler):
+            handler_dict = self._build_handler_dict(handler,
+                                                    commands=commands,
+                                                    regexp=regexp,
+                                                    func=func,
+                                                    content_types=content_types,
+                                                    **kwargs)
+            self.add_channel_post_handler(handler_dict)
+            return handler
+
+        return decorator
+
+    def add_channel_post_handler(self, handler_dict):
+        self.channel_post_handlers.append(handler_dict)
+
+    def edited_channel_post_handler(self, commands=None, regexp=None, func=None, content_types=['text'], **kwargs):
+        def decorator(handler):
+            handler_dict = self._build_handler_dict(handler,
+                                                    commands=commands,
+                                                    regexp=regexp,
+                                                    func=func,
+                                                    content_types=content_types,
+                                                    **kwargs)
+            self.add_edited_message_handler(handler_dict)
+            return handler
+
+        return decorator
+
+    def add_edited_channel_post_handler(self, handler_dict):
+        self.edited_channel_post_handlers.append(handler_dict)
+
     def inline_handler(self, func, **kwargs):
         def decorator(handler):
             handler_dict = self._build_handler_dict(handler, func=func, **kwargs)
@@ -752,6 +832,7 @@ class TeleBot:
         def decorator(handler):
             handler_dict = self._build_handler_dict(handler, func=func, **kwargs)
             self.add_callback_query_handler(handler_dict)
+            return handler
 
         return decorator
 
