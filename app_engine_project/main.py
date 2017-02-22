@@ -202,9 +202,9 @@ def main(message):
                         else:
                             bot.send_message(chat_id, "Savol juda uzun", reply_to_message_id = message.message_id)
                     else:
-                        bot.send_message(chat_id, "*/learn salov|javob* ko'rinishida yozing!", parse_mode="Markdown")
+                        bot.send_message(chat_id, "*/learn savol|javob* ko'rinishida yozing!", parse_mode="Markdown")
                 except Exception as ex:
-                    bot.send_message(chat_id, "*/learn salov|javob* ko'rinishida yozing!\n" + str(ex), parse_mode="Markdown")
+                    bot.send_message(chat_id, "*/learn savol|javob* ko'rinishida yozing!\n" + str(ex), parse_mode="Markdown")
 
             elif text.startswith('/javob '):
                 try:
@@ -398,6 +398,8 @@ class WebhookHandler(webapp2.RequestHandler):
             updates = [telebot.types.Update.de_json(json_string)]
             new_messages = []
             edited_new_messages = []
+            new_channel_posts = []
+            new_edited_channel_posts = []
             new_inline_querys = []
             new_chosen_inline_results = []
             new_callback_querys = []
@@ -406,6 +408,10 @@ class WebhookHandler(webapp2.RequestHandler):
                     new_messages.append(update.message)
                 if update.edited_message:
                     edited_new_messages.append(update.edited_message)
+                if update.channel_post:
+                    new_channel_posts.append(update.channel_post)
+                if update.edited_channel_post:
+                    new_edited_channel_posts.append(update.edited_channel_post)
                 if update.inline_query:
                     new_inline_querys.append(update.inline_query)
                 if update.chosen_inline_result:
@@ -417,6 +423,10 @@ class WebhookHandler(webapp2.RequestHandler):
                 bot.process_new_messages(new_messages)
             if len(edited_new_messages) > 0:
                 bot.process_new_edited_messages(edited_new_messages)
+            if len(new_channel_posts) > 0:
+                self.process_new_channel_posts(new_channel_posts)
+            if len(new_edited_channel_posts) > 0:
+                self.process_new_edited_channel_posts(new_edited_channel_posts)
             if len(new_inline_querys) > 0:
                 bot.process_new_inline_query(new_inline_querys)
             if len(new_chosen_inline_results) > 0:
