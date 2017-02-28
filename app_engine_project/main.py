@@ -424,9 +424,9 @@ class WebhookHandler(webapp2.RequestHandler):
             if len(edited_new_messages) > 0:
                 bot.process_new_edited_messages(edited_new_messages)
             if len(new_channel_posts) > 0:
-                self.process_new_channel_posts(new_channel_posts)
+                bot.process_new_channel_posts(new_channel_posts)
             if len(new_edited_channel_posts) > 0:
-                self.process_new_edited_channel_posts(new_edited_channel_posts)
+                bot.process_new_edited_channel_posts(new_edited_channel_posts)
             if len(new_inline_querys) > 0:
                 bot.process_new_inline_query(new_inline_querys)
             if len(new_chosen_inline_results) > 0:
