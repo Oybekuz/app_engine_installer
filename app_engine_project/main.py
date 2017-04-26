@@ -300,18 +300,16 @@ def main(message):
         
         elif text == "/about": #Agar foydalanuvchilarni hisoblash sistemasini 0 dan tuzsangiz, @UzStudio ni optashasiz mumkin
             chats = fv.open('./enabled_list.uzsdb', 'r').read().split('\n')
-            i = 0
             group = 0
-            while i < len(chats):
-                if chats[i].startswith('-'):
-                    group = group + 1
-                i = i + 1
+            for chat in chats:
+                if chat.startswith('-'):
+                    group += 1
             chats = len(chats) - group
             keyboard = types.InlineKeyboardMarkup()
             callback = types.InlineKeyboardButton(text="♻️Yangilash♻️", callback_data="about_yangilash")
             keyboard.add(callback)
             subscribe_about = '📈Bot foydalanuvchilari:\n👤*' + str(chats) + '* odamlar,\n👥*' + str(group) + '* guruxlar.\n🕵Hammasi bo\'lip: *' + str(chats+group) + '*\n'
-            bot.send_message(chat_id, subscribe_about +"\n*" +   str(time.time()) + "*\n\n©`2015`-`2016` @UzStudio ™", parse_mode="Markdown")
+            bot.send_message(chat_id, subscribe_about +"\n*" +   str(time.time()) + "*\n\n©`2015`-`2017` @UzStudio ™", parse_mode="Markdown")
 
         elif step=="main": #Agar asosiy menyuda bo'lsa
             if text=="/command" or text == "command":
