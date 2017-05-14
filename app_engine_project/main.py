@@ -12,30 +12,35 @@ import requests
 import json
 from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
-import telebot
 import time
 from time import sleep
+from datetime import datetime, timedelta
+import telebot
 from telebot import types
 import os
 import random
-from datetime import datetime
-from pytz import timezone
 import webapp2
 import urllib
 import urllib2
 API_TOKEN = "replace_me_with_token"
+
 def admin(user_id):
     Admins = [88505037, 8768957689476] #Adminlar id si ro'yhati. Bu yerga o'zingizni id raqamingizni yozing. Tel raqam emas, telegramdagi id raqam
-    if user_id in Admins:
-        return(True)
-    else:
-        return(False)
-bot=telebot.TeleBot(API_TOKEN, threaded=False)
-bot_id=API_TOKEN.split(":")[0]
+    return user_id in Admins
+
+bot = telebot.TeleBot(API_TOKEN, threaded=False)
+bot_id = int(API_TOKEN.split(":")[0])
+webhook_key = (API_TOKEN.split(":")[1])[:-20]
 
 def _print(a):
     logging.info(str(a))
     return
+
+def get_date():
+    return (datetime.now() + timedelta(hours=5)).strftime('%Y-%m-%d')
+
+def get_datetime():
+    return (datetime.now() + timedelta(hours=5)).strftime('%Y-%m-%d %H:%M:%S')
 
 def md(txt):
     return(txt.replace("_","\_").replace("*","\*").replace("`","\`").replace("[","\["))
@@ -309,7 +314,7 @@ def main(message):
             callback = types.InlineKeyboardButton(text="♻️Yangilash♻️", callback_data="about_yangilash")
             keyboard.add(callback)
             subscribe_about = '📈Bot foydalanuvchilari:\n👤*' + str(chats) + '* odamlar,\n👥*' + str(group) + '* guruxlar.\n🕵Hammasi bo\'lip: *' + str(chats+group) + '*\n'
-            bot.send_message(chat_id, subscribe_about +"\n*" +   str(time.time()) + "*\n\n©`2015`-`2017` @UzStudio ™", parse_mode="Markdown")
+            bot.send_message(chat_id, subscribe_about +"\n*" + get_datetime() + "*\n\n©`2015`-`2017` @UzStudio ™", parse_mode="markdown")
 
         elif step=="main": #Agar asosiy menyuda bo'lsa
             if text=="/command" or text == "command":
@@ -351,12 +356,7 @@ def main(message):
                             bot.send_message(chat_id, "[screenshot](" + str(data) + ") topilmadi", parse_mode="Markdown")
                     except:
                         _print(" ")
-                
-                    
-            
-                
-            
-        
+
     return
 
 
@@ -445,14 +445,14 @@ class SetWebhookHandler(webapp2.RequestHandler):
             fv.open("./enabled_list.uzsdb","r").read()
         except:
             fv.open('./enabled_list.uzsdb',"w").write("0")
-        
+
         try:
             fv.open("./history.uzsdb","r").read()
         except:
             fv.open('./history.uzsdb',"w").write("0")
-            
+
         if not url:
-            bot.set_webhook("https://" + project_name + ".appspot.com/webhook")
+            bot.set_webhook("https://" + project_name + ".appspot.com/" + webhook_key)
         elif token == API_TOKEN:
             bot.set_webhook(url)
         else:
@@ -464,5 +464,5 @@ class SetWebhookHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/', IndexHandler),
     ('/set_webhook', SetWebhookHandler),
-    ('/webhook', WebhookHandler),
+    ('/' + webhook_key, WebhookHandler),
 ], debug=True)
