@@ -10,7 +10,6 @@ import logging
 import threading
 import requests
 import json
-from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
 import time
 from time import sleep
@@ -387,7 +386,6 @@ class IndexHandler(webapp2.RequestHandler):
 # Process webhook calls
 class WebhookHandler(webapp2.RequestHandler):
     def post(self):
-        urlfetch.set_default_fetch_deadline(600)
         body = json.loads(self.request.body)
         logging.info('request body:')
         logging.info(body)
@@ -438,7 +436,6 @@ class WebhookHandler(webapp2.RequestHandler):
 
 class SetWebhookHandler(webapp2.RequestHandler):
     def get(self):
-        urlfetch.set_default_fetch_deadline(60)
         url = self.request.get("url")
         token = self.request.get("token")
         try:
