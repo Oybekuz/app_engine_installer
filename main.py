@@ -92,7 +92,7 @@ while admin_id == 0:
         admin_id = a_id
         log("admin id aniqlandi")
     except:
-        log("admin paroq qivotti")
+        log("admin parot qivotti")
         print("\033[1m id raqam bo'ladi \033[0m")
         
 
