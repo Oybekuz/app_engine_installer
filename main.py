@@ -2,7 +2,8 @@
 #-*-coding:utf-8-*-
 import os
 import threading
-from app_engine_installer import requests
+import urllib2
+from app_engine_project import requests
 import json
 import re
 import sys
@@ -15,8 +16,8 @@ except:
 
 t = int(time.time())
 
-def log(t):
-    open("./installing_" + str(t) + ".log",'a').write("\n [" + str(time.time()) + "] " + str(t))
+def log(tt):
+    open("./installing_" + str(t) + ".log",'a').write("\n [" + str(time.time()) + "] " + str(tt))
 
 
 log("O'rnatilish jarayoni boshlandi")
