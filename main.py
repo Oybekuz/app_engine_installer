@@ -1,8 +1,8 @@
-#!/user/bin/python
+#!/usr/bin/python
 #-*-coding:utf-8-*-
 import os
 import threading
-import urllib2
+from app_engine_installer import requests
 import json
 import re
 import sys
@@ -11,10 +11,12 @@ try:
     reload(sys)
     sys.setdefaultencoding("utf-8")
 except:
-    'gitara'
+    'py3 uchun keremas'
+
+t = int(time.time())
 
 def log(t):
-    open("./installing_log.txt",'a').write("\n [" + str(time.time()) + "] " + str(t))
+    open("./installing_" + str(t) + ".log",'a').write("\n [" + str(time.time()) + "] " + str(t))
 
 
 log("O'rnatilish jarayoni boshlandi")
@@ -32,12 +34,12 @@ def wait(instruction):
     while raw_input("O'xshadimi? y/n:").lower() != "y":
         print(instruction)
 
-print("Salom, bu script sizga google ga bo't joylashga yordam beradi. 1) appengine.google.com ga kiring. Kirganingizda \"y\" dip yozing.")
+print("Salom, bu script sizga google ga bo't joylashga yordam beradi.\n Reja bo'yicha,  Muammolar bo'lsa, \033[34m@botlarhaqida\033[0m gruppasida yozip ko'rin \n1) appengine.google.com ga kiring. Kirganingizda \"y\" dip yozing.")
 while raw_input("Kirdingizmi? y/n:").lower() != "y":
     print('https://appengine.google.com/ ga kiring. Bu qiyinamas')
 
-print("Ok. Kirgan bo'lsangiz, u yerda \033[4m'Create project'\033[0m yoki \033[4m'Создать проект'\033[0m tugmasini bosing. Bosgandan keyin yana 'y' ni bosing.")
-wait("Yaxshilap e'tibor bilan qidiring. Script topib beomidi. Topsangiz, 'y' jo'nating")
+print("Ok. Kirgan bo'lsangiz, u yerda \033[4m'Create project'\033[0m yoki \033[4m'Создать проект'\033[0m tugmasini topib bosing. Bosgandan keyin yana 'y' deb bosing.")
+wait("Agar topgan bo'lsangiz, 'y' deb yozing. Bu script interactive emas")
 
 print("Menyu ochiladi, va u yerga project nomini yozasiz. Yaxshisi, bo'tingizni userneymini yozing. Misol uchun, @intelekt_bot ni intelekt-bot deb, shunda chalkashishlar kam bo'ladi.")
 print("\033[1m Project nomi bila id si bir xil bo'lgani yaxshi. Project nomi va id sini eslap qoling!\033[0m")
@@ -54,35 +56,72 @@ try:
     os.system("unzip master.zip")
     data = open("./google_appengine/appcfg.py",'r').read()
     if "#!/usr/bin/env python" in data:
-        print("\033[4m Google app engine SDK o'rnatildi \033[0m")
+        print("\033[43m Google app engine SDK o'rnatildi \033[0m")
     else:
-        print("\033[4m Google app engine SDK o'rnatilmadi. Fayllarni tozalang va qayta o'rnatishga harakat qiling.")
+        print("\033[41m Google app engine SDK o'rnatilmadi. Fayllarni tozalang va qayta o'rnatishga harakat qiling.")
         log("appcfg.py da #!/usr/bin/env python yo'q")
 except Exception as ex:
     log("Unzip da hato")
-    print("\033[4m Google app engine SDK o'rnatilmadi. Fayllar hali tayyor emas")
+    print("\033[41m Google app engine SDK o'rnatilmadi. Fayllar hali tayyor emas")
     
 print("Ok, endi @botfather ga kiring va \033[95m/newbot\033[0m buyrug'ini bering. Keyin, bo'tni ismini (nikini) yozing. Undan keyin bo'tni \033[95m @userneym \033[0m ini yozing. Agar boy yasalmasa, unda boshqa userneym bilan harakat qiling. Bo't \033[95m @userneym`i \033[95m ohiri \033[95m bot \033[0m yoki \033[95m _bot \033[0m bilan tugashi kerak.")
 p = True
 API_TOKEN = ""
 
-token = raw_input("token:")
-
-res = re.search(r"([0-9]+:[\w]+)", token)
-if res:
-    for t in res.groups():
-        try:
-            data = urllib2.urlopen("https://api.telegram.org/bot" + t + "/getMe").read()
-            username = json.loads(data)["result"]['username']
-            print("\n\nbotingiz topildi! username: @" + username)
-            API_TOKEN = t
-            del(data)
-            break
-        except Exception as ex:
-            log("token bilan muammo: " + str(ex) + " token: " + t) 
-if API_TOKEN == "":
-    print("API tokenda hato")
+try:
+    requests.get("https://api.telegram.org/bot", timeout=5).content
+    while API_TOKEN=="":
+        token = raw_input("token:")
+        res = re.search(r"([0-9]+:[\w]+)", token)
+        if res:
+            for t in res.groups():
+                try:
+                    data = requests.get("https://api.telegram.org/bot" + t + "/getMe", timeout = 10).content
+                    username = json.loads(data)["result"]['username']
+                    print("\n\nbotingiz topildi! username: @" + username)
+                    API_TOKEN = t
+                    del(data)
+                    break
+                except Exception as ex:
+                    log("token bilan muammo: " + str(ex) + " token: " + t) 
+        if API_TOKEN == "":
+            print("API token topilmadi. Qaytdan kiriting:")
+except:
+    print("Siz ishlatayotgan muhitdan telegram serverlariga ulanib bo'lmadi. 3 hil variant bor: 1)Bizni serverlar orqali urinib ko'rish\n2)tokenni qo'lda app_engine_installer/app_engine_project/main.py faylida tog'rilab yozish\n3)tokenni bir martta yozish. (noto'g'ri yozip qo'ysangiz 2-variantni qilishga to'gri keladi).\nQaysi variantni tanlaysiz?")
+    i = ""
+    while(not i in ["1", "2", "3"]):
+        print("variant raqamini o'zini yozing")
     
+    if i=="1":
+        while API_TOKEN=="":
+            token = raw_input("token:")
+            res = re.search(r"([0-9]+:[\w]+)", token)
+            if res:
+                for t in res.groups():
+                    nn = int(time.time())%2+1
+                    try:
+                        data = requests.get("http://t-checker-" + str(nn) + ".appspot.com/check?t=" + str(t)).content
+                        if data != "ERROR":
+                            username = data
+                            print("\n\nbotingiz topildi! username: @" + username)
+                            API_TOKEN = t
+                            del(data)
+                            break
+                        else:
+                            log("token bilan muammo.  token: " + t)
+                    
+                    except Exception as ex:
+                        log("token bilan muammo: " + str(ex) + " token: " + t) 
+            
+            if API_TOKEN == "":
+                print("API token topilmadi. Qaytdan kiriting:")
+    
+    if i == "2":
+        print("OK, tokenni o'ziz yozarsiz")
+        API_TOKEN = "meni token bilan almashtiring"
+    if i == "3":
+        API_TOKEN = raw_input("tokenni kiriting: ")
+            
 print("O'zingizni id raqamingizni yozing. Uni @intelekt_bot ga /id buyrug'ini berib bilsa bo'ladi. Agar noto'g'ri id yozsangiz, unda boshqa odam bo'tga admin bo'lip qoladi")
 admin_id = 0
 log("admindan id so'ralmoqda...")
@@ -133,7 +172,7 @@ os.system('google_appengine/appcfg.py -A '+ project_id + " update app_engine_ins
 
 try:
     urllib2.urlopen('https://' + project_id + ".appspot.com/set_webhook").read()
-    print("Agar siz hammasini to'g'ri qilgan bo'lsangiz, bo't ishga tushdi. Muammolar bo'lsa, @python_uz ga yozing.")
+    print("Agar siz hammasini to'g'ri qilgan bo'lsangiz, bo't ishga tushdi.")
 except Exception as ex:
     log("serverga joylagandan keyingi muammo: " + str(ex))
     print("Server ishlamiyopti. Qandaydir hato bo'lgan. Qaytadan harakat qilinmoqda...")
