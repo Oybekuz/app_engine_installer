@@ -89,10 +89,11 @@ try:
             print("API token topilmadi. Qaytdan kiriting:")
 except:
     print("Siz ishlatayotgan muhitdan telegram serverlariga ulanib bo'lmadi. 3 hil variant bor: 1)Bizni serverlar orqali urinib ko'rish\n2)tokenni qo'lda app_engine_installer/app_engine_project/main.py faylida tog'rilab yozish\n3)tokenni bir martta yozish. (noto'g'ri yozip qo'ysangiz 2-variantni qilishga to'gri keladi).\nQaysi variantni tanlaysiz?")
-    i = ""
+    i = raw_input("variant: ")
     while(not i in ["1", "2", "3"]):
         print("variant raqamini o'zini yozing")
-    
+        i = raw_input("variant: ")
+        
     if i=="1":
         while API_TOKEN=="":
             token = raw_input("token:")
