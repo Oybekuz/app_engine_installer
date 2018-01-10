@@ -97,7 +97,7 @@ except:
     if i=="1":
         while API_TOKEN=="":
             token = raw_input("token:")
-            res = re.search(r"([0-9]+:[\w]+)", token)
+            res = re.search(r"([0-9]+:[\w|-]+)", token)
             if res:
                 for t in res.groups():
                     nn = int(time.time())%2+1
