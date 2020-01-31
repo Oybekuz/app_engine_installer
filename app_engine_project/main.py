@@ -386,11 +386,10 @@ class IndexHandler(webapp2.RequestHandler):
 # Process webhook calls
 class WebhookHandler(webapp2.RequestHandler):
     def post(self):
-        body = json.loads(self.request.body)
-        logging.info('request body:')
-        logging.info(body)
         try:
             json_string = json.loads(self.request.body.decode("utf-8"))
+            logging.info('request body:')
+            logging.info(json_string)
             updates = [telebot.types.Update.de_json(json_string)]
             new_messages = []
             edited_new_messages = []
