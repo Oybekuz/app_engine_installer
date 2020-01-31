@@ -28,7 +28,7 @@ def log(tt):
 log("O'rnatilish jarayoni boshlandi")
 
 def a():
-    data = requests.get("https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.81.zip").content
+    data = requests.get("https://storage.googleapis.com/appengine-sdks/featured/google_appengine_1.9.88.zip").content
     open('./master.zip',"wb").write(data)
     del(data)
     log("Fayl yuklandi")
